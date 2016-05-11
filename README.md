@@ -1,2 +1,2 @@
 # NodeJSBoilerplate
-A NodeJS Boilerplate
+My personnal NodeJS Boilerplate
