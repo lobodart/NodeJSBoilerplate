@@ -23,7 +23,7 @@ router.post('/auth', requirements.validate('api.auth'), function(req, res, next)
 
         bcrypt.compare(req.body.password, user.password, function(err, passwordOk) {
             if (!passwordOk) return res.unauthorized('invalid_auth');
-            
+
             createTokenForUser(user, req.redis, function(err, token) {
                 return res.ok({
                     token: token

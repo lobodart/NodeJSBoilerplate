@@ -30,7 +30,7 @@ var UserSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        unique: true,
+        unique: true
     },
     isAdmin: {
         type: Boolean,
@@ -57,7 +57,7 @@ UserSchema.pre('save', function (next) {
         // Hash the password using our new salt
         bcrypt.hash(newUser.password, salt, function(err, hash) {
             if (err) return next(err);
-            // 0verride the cleartext password with the hashed one
+            // Override the cleartext password with the hashed one
             newUser.password = hash;
             next();
         });
