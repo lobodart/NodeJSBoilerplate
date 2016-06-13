@@ -1,4 +1,5 @@
 module.exports = {
     AdminIndex: require('./AdminIndex.js'),
-    DataList: require('./DataList.js')
+    DataList: require('./DataList.js'),
+    CreateUpdateModel: require('./CreateUpdateModel.js')
 };

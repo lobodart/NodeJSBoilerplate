@@ -31,9 +31,9 @@ var ModelList = React.createClass({
         });
 
         return (
-            <div className="models">
+            <div>
             <h1>Models</h1>
-            <div>{modelNodes}</div>
+            <div className="collection">{modelNodes}</div>
             </div>
         )
     }
@@ -42,7 +42,7 @@ var ModelList = React.createClass({
 var Model = React.createClass({
     render: function () {
         return (
-            <div><Link to={'/model/' + this.props.name.toLowerCase()}>{this.props.name}</Link></div>
+            <Link className="collection-item" to={'/model/' + this.props.name.toLowerCase()}>{this.props.name}</Link>
         );
     }
 });

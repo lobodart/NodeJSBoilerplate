@@ -6,10 +6,10 @@ var Route = require('react-router').Route;
 var components = require('./components');
 
 ReactDOM.render(
-    // <ModelList source="http://localhost:8000/api/admin/models" pollInterval={2000} />,
     <Router>
     <Route path="/" component={components.AdminIndex} />
     <Route path="/model/:model" component={components.DataList} />
+    <Route path="/model/:model/new" component={components.CreateUpdateModel} />
     </Router>,
     document.getElementById('content')
 );

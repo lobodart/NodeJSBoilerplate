@@ -54,15 +54,14 @@
 	var Router = __webpack_require__(/*! react-router */ 168).Router;
 	var Route = __webpack_require__(/*! react-router */ 168).Route;
 	
-	var components = __webpack_require__(/*! ./components */ 230);
+	var components = __webpack_require__(/*! ./components */ 229);
 	
-	ReactDOM.render(
-	// <ModelList source="http://localhost:8000/api/admin/models" pollInterval={2000} />,
-	React.createElement(
+	ReactDOM.render(React.createElement(
 	    Router,
 	    null,
 	    React.createElement(Route, { path: '/', component: components.AdminIndex }),
-	    React.createElement(Route, { path: '/model/:model', component: components.DataList })
+	    React.createElement(Route, { path: '/model/:model', component: components.DataList }),
+	    React.createElement(Route, { path: '/model/:model/new', component: components.CreateUpdateModel })
 	), document.getElementById('content'));
 
 /***/ },
@@ -26535,6 +26534,93 @@
 
 /***/ },
 /* 229 */
+/*!********************************************!*\
+  !*** ./app/views/srcs/components/index.js ***!
+  \********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	module.exports = {
+	    AdminIndex: __webpack_require__(/*! ./AdminIndex.js */ 230),
+	    DataList: __webpack_require__(/*! ./DataList.js */ 232),
+	    CreateUpdateModel: __webpack_require__(/*! ./CreateUpdateModel.js */ 233)
+	};
+
+/***/ },
+/* 230 */
+/*!*************************************************!*\
+  !*** ./app/views/srcs/components/AdminIndex.js ***!
+  \*************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var React = __webpack_require__(/*! react */ 1);
+	var ReactDOM = __webpack_require__(/*! react-dom */ 38);
+	var Router = __webpack_require__(/*! react-router */ 168).Router;
+	var Route = __webpack_require__(/*! react-router */ 168).Route;
+	var Link = __webpack_require__(/*! react-router */ 168).Link;
+	var $ = __webpack_require__(/*! jquery */ 231);
+	
+	var ModelList = React.createClass({
+	    displayName: 'ModelList',
+	
+	    getInitialState: function getInitialState() {
+	        return {
+	            url: 'http://localhost:8000/api/admin/models',
+	            data: []
+	        };
+	    },
+	
+	    loadModels: function loadModels() {
+	        this.serverRequest = $.get(this.state.url, function (data) {
+	            this.setState({ data: data.models });
+	        }.bind(this));
+	    },
+	
+	    componentDidMount: function componentDidMount() {
+	        this.loadModels();
+	    },
+	
+	    render: function render() {
+	        var modelNodes = this.state.data.map(function (model) {
+	            return React.createElement(Model, { name: model.name, key: model.id });
+	        });
+	
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'h1',
+	                null,
+	                'Models'
+	            ),
+	            React.createElement(
+	                'div',
+	                { className: 'collection' },
+	                modelNodes
+	            )
+	        );
+	    }
+	});
+	
+	var Model = React.createClass({
+	    displayName: 'Model',
+	
+	    render: function render() {
+	        return React.createElement(
+	            Link,
+	            { className: 'collection-item', to: '/model/' + this.props.name.toLowerCase() },
+	            this.props.name
+	        );
+	    }
+	});
+	
+	module.exports = ModelList;
+
+/***/ },
+/* 231 */
 /*!*********************************!*\
   !*** ./~/jquery/dist/jquery.js ***!
   \*********************************/
@@ -36580,96 +36666,6 @@
 
 
 /***/ },
-/* 230 */
-/*!********************************************!*\
-  !*** ./app/views/srcs/components/index.js ***!
-  \********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	module.exports = {
-	    AdminIndex: __webpack_require__(/*! ./AdminIndex.js */ 231),
-	    DataList: __webpack_require__(/*! ./DataList.js */ 232)
-	};
-
-/***/ },
-/* 231 */
-/*!*************************************************!*\
-  !*** ./app/views/srcs/components/AdminIndex.js ***!
-  \*************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	var React = __webpack_require__(/*! react */ 1);
-	var ReactDOM = __webpack_require__(/*! react-dom */ 38);
-	var Router = __webpack_require__(/*! react-router */ 168).Router;
-	var Route = __webpack_require__(/*! react-router */ 168).Route;
-	var Link = __webpack_require__(/*! react-router */ 168).Link;
-	var $ = __webpack_require__(/*! jquery */ 229);
-	
-	var ModelList = React.createClass({
-	    displayName: 'ModelList',
-	
-	    getInitialState: function getInitialState() {
-	        return {
-	            url: 'http://localhost:8000/api/admin/models',
-	            data: []
-	        };
-	    },
-	
-	    loadModels: function loadModels() {
-	        this.serverRequest = $.get(this.state.url, function (data) {
-	            this.setState({ data: data.models });
-	        }.bind(this));
-	    },
-	
-	    componentDidMount: function componentDidMount() {
-	        this.loadModels();
-	    },
-	
-	    render: function render() {
-	        var modelNodes = this.state.data.map(function (model) {
-	            return React.createElement(Model, { name: model.name, key: model.id });
-	        });
-	
-	        return React.createElement(
-	            'div',
-	            { className: 'models' },
-	            React.createElement(
-	                'h1',
-	                null,
-	                'Models'
-	            ),
-	            React.createElement(
-	                'div',
-	                null,
-	                modelNodes
-	            )
-	        );
-	    }
-	});
-	
-	var Model = React.createClass({
-	    displayName: 'Model',
-	
-	    render: function render() {
-	        return React.createElement(
-	            'div',
-	            null,
-	            React.createElement(
-	                Link,
-	                { to: '/model/' + this.props.name.toLowerCase() },
-	                this.props.name
-	            )
-	        );
-	    }
-	});
-	
-	module.exports = ModelList;
-
-/***/ },
 /* 232 */
 /*!***********************************************!*\
   !*** ./app/views/srcs/components/DataList.js ***!
@@ -36683,17 +36679,59 @@
 	var Router = __webpack_require__(/*! react-router */ 168).Router;
 	var Route = __webpack_require__(/*! react-router */ 168).Route;
 	var Link = __webpack_require__(/*! react-router */ 168).Link;
-	var $ = __webpack_require__(/*! jquery */ 229);
-	var _ = __webpack_require__(/*! lodash */ 233);
+	var $ = __webpack_require__(/*! jquery */ 231);
+	var _ = __webpack_require__(/*! lodash */ 234);
 	
 	var DataBox = React.createClass({
 	    displayName: 'DataBox',
 	
+	    getInitialState: function getInitialState() {
+	        return {
+	            properties: []
+	        };
+	    },
+	
+	    loadModelProperties: function loadModelProperties() {
+	        this.propertiesRequest = $.get('http://localhost:8000/api/admin/models/' + this.props.params.model, function (data) {
+	            this.setState({ properties: data.properties });
+	        }.bind(this));
+	    },
+	
+	    componentDidMount: function componentDidMount() {
+	        this.loadModelProperties();
+	    },
+	
 	    render: function render() {
 	        return React.createElement(
 	            'div',
-	            { className: 'databox' },
-	            React.createElement(DataTableHeader, { model: this.props.params.model })
+	            null,
+	            React.createElement(
+	                'div',
+	                { className: 'row' },
+	                React.createElement(
+	                    'div',
+	                    { className: 'col-md-10' },
+	                    React.createElement(
+	                        'h1',
+	                        null,
+	                        this.props.params.model
+	                    )
+	                ),
+	                React.createElement(
+	                    'div',
+	                    { className: 'col-md-2' },
+	                    React.createElement(
+	                        Link,
+	                        { to: '/model/' + this.props.params.model + '/new' },
+	                        'Ajouter'
+	                    )
+	                )
+	            ),
+	            React.createElement(
+	                'div',
+	                null,
+	                React.createElement(DataTableHeader, { model: this.props.params.model })
+	            )
 	        );
 	    }
 	});
@@ -36729,7 +36767,7 @@
 	        var propertyNodes = this.state.properties.map(function (property) {
 	            return React.createElement(
 	                'th',
-	                { style: { border: '1px solid red' } },
+	                { 'data-field': property.name },
 	                property.name
 	            );
 	        });
@@ -36741,7 +36779,7 @@
 	
 	        return React.createElement(
 	            'table',
-	            null,
+	            { className: 'table table-bordered' },
 	            React.createElement(
 	                'thead',
 	                null,
@@ -36786,6 +36824,118 @@
 
 /***/ },
 /* 233 */
+/*!********************************************************!*\
+  !*** ./app/views/srcs/components/CreateUpdateModel.js ***!
+  \********************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var React = __webpack_require__(/*! react */ 1);
+	var ReactDOM = __webpack_require__(/*! react-dom */ 38);
+	var Router = __webpack_require__(/*! react-router */ 168).Router;
+	var Route = __webpack_require__(/*! react-router */ 168).Route;
+	var Link = __webpack_require__(/*! react-router */ 168).Link;
+	var $ = __webpack_require__(/*! jquery */ 231);
+	
+	var ModelForm = React.createClass({
+	    displayName: 'ModelForm',
+	
+	    getInitialState: function getInitialState() {
+	        return {
+	            properties: []
+	        };
+	    },
+	
+	    loadModelProperties: function loadModelProperties() {
+	        this.propertiesRequest = $.get('http://localhost:8000/api/admin/models/' + this.props.params.model, function (data) {
+	            this.setState({ properties: data.properties });
+	        }.bind(this));
+	    },
+	
+	    componentDidMount: function componentDidMount() {
+	        this.loadModelProperties();
+	    },
+	
+	    render: function render() {
+	        var fields = this.state.properties.map(function (property) {
+	            if (property.type == 'String') return React.createElement(FieldTypeString, { property: property });else if (property.type == 'Boolean') return React.createElement(FieldTypeBoolean, { property: property });else if (property.type == 'Date') return React.createElement(FieldTypeDate, { property: property });
+	        });
+	
+	        return React.createElement(
+	            'form',
+	            null,
+	            React.createElement(
+	                'h1',
+	                null,
+	                'Test'
+	            ),
+	            fields,
+	            React.createElement(
+	                'button',
+	                { type: 'submit', className: 'btn btn-default' },
+	                'Submit'
+	            )
+	        );
+	    }
+	});
+	
+	var FieldTypeString = React.createClass({
+	    displayName: 'FieldTypeString',
+	
+	    render: function render() {
+	        return React.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            React.createElement(
+	                'label',
+	                { htmlFor: this.props.property.name },
+	                this.props.property.name
+	            ),
+	            React.createElement('input', { type: 'text', className: 'form-control', id: this.props.property.name, placeholder: this.props.property.name })
+	        );
+	    }
+	});
+	
+	var FieldTypeBoolean = React.createClass({
+	    displayName: 'FieldTypeBoolean',
+	
+	    render: function render() {
+	        return React.createElement(
+	            'div',
+	            { className: 'checkbox' },
+	            React.createElement(
+	                'label',
+	                null,
+	                React.createElement('input', { type: 'checkbox' }),
+	                ' ',
+	                this.props.property.name
+	            )
+	        );
+	    }
+	});
+	
+	var FieldTypeDate = React.createClass({
+	    displayName: 'FieldTypeDate',
+	
+	    render: function render() {
+	        return React.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            React.createElement(
+	                'label',
+	                { htmlFor: this.props.property.name },
+	                this.props.property.name
+	            ),
+	            React.createElement('input', { type: 'date', className: 'form-control', id: this.props.property.name })
+	        );
+	    }
+	});
+	
+	module.exports = ModelForm;
+
+/***/ },
+/* 234 */
 /*!****************************!*\
   !*** ./~/lodash/lodash.js ***!
   \****************************/
@@ -53034,10 +53184,10 @@
 	  }
 	}.call(this));
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 234)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 235)(module), (function() { return this; }())))
 
 /***/ },
-/* 234 */
+/* 235 */
 /*!***********************************!*\
   !*** (webpack)/buildin/module.js ***!
   \***********************************/

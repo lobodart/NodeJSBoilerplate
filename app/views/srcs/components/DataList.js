@@ -7,12 +7,37 @@ var $ = require('jquery');
 var _ = require('lodash');
 
 var DataBox = React.createClass({
+    getInitialState: function () {
+        return ({
+            properties: []
+        });
+    },
+
+    loadModelProperties: function () {
+        this.propertiesRequest = $.get('http://localhost:8000/api/admin/models/' + this.props.params.model, function (data) {
+            this.setState({ properties: data.properties });
+        }.bind(this));
+    },
+
+    componentDidMount: function () {
+        this.loadModelProperties();
+    },
+
     render: function () {
         return (
-            <div className="databox">
+            <div>
+                <div className='row'>
+                    <div className='col-md-10'>
+                        <h1>{this.props.params.model}</h1>
+                    </div>
+                    <div className='col-md-2'>
+                        <Link to={'/model/' + this.props.params.model + '/new'}>Ajouter</Link>
+                    </div>
+                </div>
 
-            <DataTableHeader model={this.props.params.model} />
-
+                <div>
+                    <DataTableHeader model={this.props.params.model} />
+                </div>
             </div>
         );
     }
@@ -46,7 +71,7 @@ var DataTableHeader = React.createClass({
     render: function () {
         var propertyNodes = this.state.properties.map(function(property) {
             return (
-                <th style={{border: '1px solid red'}}>{property.name}</th>
+                <th data-field={property.name}>{property.name}</th>
             );
         });
 
@@ -58,7 +83,7 @@ var DataTableHeader = React.createClass({
         });
 
         return (
-            <table>
+            <table className='table table-bordered'>
             <thead>
             <tr>
             {propertyNodes}
