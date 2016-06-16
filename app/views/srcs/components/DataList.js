@@ -31,7 +31,7 @@ var DataBox = React.createClass({
                         <h1>{this.props.params.model}</h1>
                     </div>
                     <div className='col-md-2'>
-                        <Link to={'/model/' + this.props.params.model + '/new'}>Ajouter</Link>
+                        <Link to={'/admin/model/' + this.props.params.model + '/add'}>Ajouter</Link>
                     </div>
                 </div>
 
@@ -98,6 +98,10 @@ var DataTableHeader = React.createClass({
 });
 
 var DataTableContentLine = React.createClass({
+    handleClick: function() {
+        console.log('clicked!');
+    },
+
     render: function () {
         var props = this.props;
         var values = this.props.properties.map(function (property) {
@@ -108,7 +112,7 @@ var DataTableContentLine = React.createClass({
         });
 
         return (
-            <tr>
+            <tr onClick={this.handleClick}>
             {values}
             </tr>
         );

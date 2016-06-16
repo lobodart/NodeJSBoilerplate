@@ -26,14 +26,13 @@ var ModelList = React.createClass({
     render: function () {
         var modelNodes = this.state.data.map(function(model) {
             return (
-                <Model name={model.name} key={model.id} />
+                <Model name={model.name} />
             );
         });
 
         return (
-            <div>
-            <h1>Models</h1>
-            <div className="collection">{modelNodes}</div>
+            <div class="list-group">
+                {modelNodes}
             </div>
         )
     }
@@ -42,7 +41,7 @@ var ModelList = React.createClass({
 var Model = React.createClass({
     render: function () {
         return (
-            <Link className="collection-item" to={'/model/' + this.props.name.toLowerCase()}>{this.props.name}</Link>
+            <Link className="list-group-item" to={'/admin/model/' + this.props.name.toLowerCase()}>{this.props.name}</Link>
         );
     }
 });

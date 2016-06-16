@@ -66,10 +66,15 @@ app.get('/api/admin/models/:model', function(req, res, next) {
 
 	var array = [];
 	_.forEach(model.schema.paths, function(object, index) {
-		array.push({
+		var newObject = {
 			name: index,
-			type: object.instance
-		});
+			type: object.instance,
+			options: object.options
+		};
+
+		if (caster = object.caster) newObject.contentType = caster.instance;
+
+		array.push(newObject);
 	});
 
 	res.ok({ properties: array });
@@ -89,7 +94,8 @@ app.get('/api/admin/models/:model/data', function(req, res, next) {
 	});
 });
 
-app.get('/admin', function(req, res) {
+app.get('/admin(?:/*)?', function(req, res, next) {
+	console.log(req.url);
 	res.sendFile(path.join(__dirname + '/app/views/admin/index.html'));
 });
 

@@ -53,15 +53,21 @@
 	var ReactDOM = __webpack_require__(/*! react-dom */ 38);
 	var Router = __webpack_require__(/*! react-router */ 168).Router;
 	var Route = __webpack_require__(/*! react-router */ 168).Route;
+	var IndexRoute = __webpack_require__(/*! react-router */ 168).IndexRoute;
+	var browserHistory = __webpack_require__(/*! react-router */ 168).browserHistory;
 	
 	var components = __webpack_require__(/*! ./components */ 229);
 	
 	ReactDOM.render(React.createElement(
 	    Router,
-	    null,
-	    React.createElement(Route, { path: '/', component: components.AdminIndex }),
-	    React.createElement(Route, { path: '/model/:model', component: components.DataList }),
-	    React.createElement(Route, { path: '/model/:model/new', component: components.CreateUpdateModel })
+	    { history: browserHistory },
+	    React.createElement(
+	        Route,
+	        { path: 'admin' },
+	        React.createElement(IndexRoute, { component: components.AdminIndex }),
+	        React.createElement(Route, { path: 'model/:model', component: components.DataList }),
+	        React.createElement(Route, { path: 'model/:model/add', component: components.CreateUpdateModel })
+	    )
 	), document.getElementById('content'));
 
 /***/ },
@@ -26544,7 +26550,7 @@
 	module.exports = {
 	    AdminIndex: __webpack_require__(/*! ./AdminIndex.js */ 230),
 	    DataList: __webpack_require__(/*! ./DataList.js */ 232),
-	    CreateUpdateModel: __webpack_require__(/*! ./CreateUpdateModel.js */ 233)
+	    CreateUpdateModel: __webpack_require__(/*! ./CreateUpdateModel.js */ 235)
 	};
 
 /***/ },
@@ -26585,22 +26591,13 @@
 	
 	    render: function render() {
 	        var modelNodes = this.state.data.map(function (model) {
-	            return React.createElement(Model, { name: model.name, key: model.id });
+	            return React.createElement(Model, { name: model.name });
 	        });
 	
 	        return React.createElement(
 	            'div',
-	            null,
-	            React.createElement(
-	                'h1',
-	                null,
-	                'Models'
-	            ),
-	            React.createElement(
-	                'div',
-	                { className: 'collection' },
-	                modelNodes
-	            )
+	            { 'class': 'list-group' },
+	            modelNodes
 	        );
 	    }
 	});
@@ -26611,7 +26608,7 @@
 	    render: function render() {
 	        return React.createElement(
 	            Link,
-	            { className: 'collection-item', to: '/model/' + this.props.name.toLowerCase() },
+	            { className: 'list-group-item', to: '/admin/model/' + this.props.name.toLowerCase() },
 	            this.props.name
 	        );
 	    }
@@ -36680,7 +36677,7 @@
 	var Route = __webpack_require__(/*! react-router */ 168).Route;
 	var Link = __webpack_require__(/*! react-router */ 168).Link;
 	var $ = __webpack_require__(/*! jquery */ 231);
-	var _ = __webpack_require__(/*! lodash */ 234);
+	var _ = __webpack_require__(/*! lodash */ 233);
 	
 	var DataBox = React.createClass({
 	    displayName: 'DataBox',
@@ -36722,7 +36719,7 @@
 	                    { className: 'col-md-2' },
 	                    React.createElement(
 	                        Link,
-	                        { to: '/model/' + this.props.params.model + '/new' },
+	                        { to: '/admin/model/' + this.props.params.model + '/add' },
 	                        'Ajouter'
 	                    )
 	                )
@@ -36801,6 +36798,10 @@
 	var DataTableContentLine = React.createClass({
 	    displayName: 'DataTableContentLine',
 	
+	    handleClick: function handleClick() {
+	        console.log('clicked!');
+	    },
+	
 	    render: function render() {
 	        var props = this.props;
 	        var values = this.props.properties.map(function (property) {
@@ -36814,7 +36815,7 @@
 	
 	        return React.createElement(
 	            'tr',
-	            null,
+	            { onClick: this.handleClick },
 	            values
 	        );
 	    }
@@ -36824,118 +36825,6 @@
 
 /***/ },
 /* 233 */
-/*!********************************************************!*\
-  !*** ./app/views/srcs/components/CreateUpdateModel.js ***!
-  \********************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	var React = __webpack_require__(/*! react */ 1);
-	var ReactDOM = __webpack_require__(/*! react-dom */ 38);
-	var Router = __webpack_require__(/*! react-router */ 168).Router;
-	var Route = __webpack_require__(/*! react-router */ 168).Route;
-	var Link = __webpack_require__(/*! react-router */ 168).Link;
-	var $ = __webpack_require__(/*! jquery */ 231);
-	
-	var ModelForm = React.createClass({
-	    displayName: 'ModelForm',
-	
-	    getInitialState: function getInitialState() {
-	        return {
-	            properties: []
-	        };
-	    },
-	
-	    loadModelProperties: function loadModelProperties() {
-	        this.propertiesRequest = $.get('http://localhost:8000/api/admin/models/' + this.props.params.model, function (data) {
-	            this.setState({ properties: data.properties });
-	        }.bind(this));
-	    },
-	
-	    componentDidMount: function componentDidMount() {
-	        this.loadModelProperties();
-	    },
-	
-	    render: function render() {
-	        var fields = this.state.properties.map(function (property) {
-	            if (property.type == 'String') return React.createElement(FieldTypeString, { property: property });else if (property.type == 'Boolean') return React.createElement(FieldTypeBoolean, { property: property });else if (property.type == 'Date') return React.createElement(FieldTypeDate, { property: property });
-	        });
-	
-	        return React.createElement(
-	            'form',
-	            null,
-	            React.createElement(
-	                'h1',
-	                null,
-	                'Test'
-	            ),
-	            fields,
-	            React.createElement(
-	                'button',
-	                { type: 'submit', className: 'btn btn-default' },
-	                'Submit'
-	            )
-	        );
-	    }
-	});
-	
-	var FieldTypeString = React.createClass({
-	    displayName: 'FieldTypeString',
-	
-	    render: function render() {
-	        return React.createElement(
-	            'div',
-	            { className: 'form-group' },
-	            React.createElement(
-	                'label',
-	                { htmlFor: this.props.property.name },
-	                this.props.property.name
-	            ),
-	            React.createElement('input', { type: 'text', className: 'form-control', id: this.props.property.name, placeholder: this.props.property.name })
-	        );
-	    }
-	});
-	
-	var FieldTypeBoolean = React.createClass({
-	    displayName: 'FieldTypeBoolean',
-	
-	    render: function render() {
-	        return React.createElement(
-	            'div',
-	            { className: 'checkbox' },
-	            React.createElement(
-	                'label',
-	                null,
-	                React.createElement('input', { type: 'checkbox' }),
-	                ' ',
-	                this.props.property.name
-	            )
-	        );
-	    }
-	});
-	
-	var FieldTypeDate = React.createClass({
-	    displayName: 'FieldTypeDate',
-	
-	    render: function render() {
-	        return React.createElement(
-	            'div',
-	            { className: 'form-group' },
-	            React.createElement(
-	                'label',
-	                { htmlFor: this.props.property.name },
-	                this.props.property.name
-	            ),
-	            React.createElement('input', { type: 'date', className: 'form-control', id: this.props.property.name })
-	        );
-	    }
-	});
-	
-	module.exports = ModelForm;
-
-/***/ },
-/* 234 */
 /*!****************************!*\
   !*** ./~/lodash/lodash.js ***!
   \****************************/
@@ -53184,10 +53073,10 @@
 	  }
 	}.call(this));
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 235)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 234)(module), (function() { return this; }())))
 
 /***/ },
-/* 235 */
+/* 234 */
 /*!***********************************!*\
   !*** (webpack)/buildin/module.js ***!
   \***********************************/
@@ -53204,6 +53093,222 @@
 		return module;
 	}
 
+
+/***/ },
+/* 235 */
+/*!********************************************************!*\
+  !*** ./app/views/srcs/components/CreateUpdateModel.js ***!
+  \********************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	var React = __webpack_require__(/*! react */ 1);
+	var ReactDOM = __webpack_require__(/*! react-dom */ 38);
+	var Router = __webpack_require__(/*! react-router */ 168).Router;
+	var Route = __webpack_require__(/*! react-router */ 168).Route;
+	var Link = __webpack_require__(/*! react-router */ 168).Link;
+	var $ = __webpack_require__(/*! jquery */ 231);
+	
+	var ModelForm = React.createClass({
+	    displayName: 'ModelForm',
+	
+	    getInitialState: function getInitialState() {
+	        return {
+	            properties: []
+	        };
+	    },
+	
+	    loadModelProperties: function loadModelProperties() {
+	        this.propertiesRequest = $.get('http://localhost:8000/api/admin/models/' + this.props.params.model, function (data) {
+	            this.setState({ properties: data.properties });
+	        }.bind(this));
+	    },
+	
+	    componentDidMount: function componentDidMount() {
+	        this.loadModelProperties();
+	    },
+	
+	    handleSubmit: function handleSubmit(e) {
+	        e.preventDefault();
+	    },
+	
+	    render: function render() {
+	        var fields = this.state.properties.map(function (property) {
+	            if (property.type == 'String') return React.createElement(FieldTypeString, { property: property });else if (property.type == 'Number') return React.createElement(FieldTypeNumber, { property: property });else if (property.type == 'Boolean') return React.createElement(FieldTypeBoolean, { property: property });else if (property.type == 'Date') return React.createElement(FieldTypeDate, { property: property });else if (property.type == 'ObjectID') {
+	                return !property.options.ref ? React.createElement(FieldTypeString, { property: property }) : React.createElement(FieldTypeObjectId, { property: property });
+	            }
+	        });
+	
+	        return React.createElement(
+	            'form',
+	            { className: 'form-horizontal', onSubmit: this.handleSubmit },
+	            fields,
+	            React.createElement(
+	                'button',
+	                { type: 'submit', className: 'btn btn-primary pull-right' },
+	                'Save ',
+	                this.props.params.model
+	            )
+	        );
+	    }
+	});
+	
+	var FieldTypeString = React.createClass({
+	    displayName: 'FieldTypeString',
+	
+	    render: function render() {
+	        return React.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            React.createElement(
+	                'label',
+	                { className: 'col-sm-2 control-label', htmlFor: this.props.property.name },
+	                this.props.property.name
+	            ),
+	            React.createElement(
+	                'div',
+	                { className: 'col-sm-10' },
+	                React.createElement('input', { type: 'text', className: 'form-control', id: this.props.property.name, placeholder: this.props.property.name })
+	            )
+	        );
+	    }
+	});
+	
+	var FieldTypeNumber = React.createClass({
+	    displayName: 'FieldTypeNumber',
+	
+	    render: function render() {
+	        var options = this.props.property.options;
+	
+	        var rangeTags = {};
+	        options.min !== undefined ? rangeTags.min = options.min : null;
+	        options.max !== undefined ? rangeTags.max = options.max : null;
+	
+	        return React.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            React.createElement(
+	                'label',
+	                { className: 'col-sm-2 control-label', htmlFor: this.props.property.name },
+	                this.props.property.name
+	            ),
+	            React.createElement(
+	                'div',
+	                { className: 'col-sm-10' },
+	                React.createElement('input', _extends({ type: 'number' }, rangeTags, { className: 'form-control', id: this.props.property.name, placeholder: this.props.property.name }))
+	            )
+	        );
+	    }
+	});
+	
+	var FieldTypeBoolean = React.createClass({
+	    displayName: 'FieldTypeBoolean',
+	
+	    render: function render() {
+	        return React.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            React.createElement(
+	                'div',
+	                { className: 'col-sm-offset-2 col-sm-10' },
+	                React.createElement(
+	                    'div',
+	                    { className: 'checkbox' },
+	                    React.createElement(
+	                        'label',
+	                        null,
+	                        React.createElement('input', { type: 'checkbox', name: this.props.property.name }),
+	                        ' ',
+	                        this.props.property.name
+	                    )
+	                )
+	            )
+	        );
+	    }
+	});
+	
+	var FieldTypeDate = React.createClass({
+	    displayName: 'FieldTypeDate',
+	
+	    render: function render() {
+	        return React.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            React.createElement(
+	                'label',
+	                { className: 'col-sm-2 control-label', htmlFor: this.props.property.name },
+	                this.props.property.name
+	            ),
+	            React.createElement(
+	                'div',
+	                { className: 'col-sm-10' },
+	                React.createElement('input', { type: 'date', className: 'form-control', id: this.props.property.name, placeholder: this.props.property.name })
+	            )
+	        );
+	    }
+	});
+	
+	var FieldTypeObjectId = React.createClass({
+	    displayName: 'FieldTypeObjectId',
+	
+	    getInitialState: function getInitialState() {
+	        return {
+	            data: []
+	        };
+	    },
+	
+	    loadOptions: function loadOptions() {
+	        this.propertiesRequest = $.get('http://localhost:8000/api/admin/models/' + this.props.property.options.ref + '/data', function (data) {
+	            this.setState({ data: data.data });
+	        }.bind(this));
+	    },
+	
+	    componentDidMount: function componentDidMount() {
+	        this.loadOptions();
+	    },
+	
+	    render: function render() {
+	        var property = this.props.property;
+	        var options = this.state.data.map(function (data) {
+	            var format = data._id;
+	            if (property.options.adminFormat) {
+	                format = property.options.adminFormat.replace(/\$([a-z0-9\-_]+)/gi, function (match, v) {
+	                    return !data[v] ? '' : String(data[v]);
+	                });
+	            }
+	
+	            return React.createElement(
+	                'option',
+	                { value: data._id },
+	                format
+	            );
+	        });
+	
+	        return React.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            React.createElement(
+	                'label',
+	                { className: 'col-sm-2 control-label', htmlFor: this.props.property.name },
+	                this.props.property.name
+	            ),
+	            React.createElement(
+	                'div',
+	                { className: 'col-sm-10' },
+	                React.createElement(
+	                    'select',
+	                    { className: 'form-control form-control-lg', id: this.props.property.name },
+	                    options
+	                )
+	            )
+	        );
+	    }
+	});
+	
+	module.exports = ModelForm;
 
 /***/ }
 /******/ ]);
