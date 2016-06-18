@@ -3,12 +3,17 @@ var ReactDOM = require('react-dom');
 var Router = require('react-router').Router;
 var Route = require('react-router').Route;
 var Link = require('react-router').Link;
+var ReactRedux = require('react-redux');
 var $ = require('jquery');
+
+var FormField = require('./model-fields');
+var FormState = {};
 
 var ModelForm = React.createClass({
     getInitialState: function () {
         return ({
-            properties: []
+            properties: [],
+            formData: {}
         });
     },
 
@@ -24,130 +29,59 @@ var ModelForm = React.createClass({
 
     handleSubmit: function(e) {
         e.preventDefault();
+
+        var AlertComponent = null;
+        var jqXHR = $.post('http://localhost:8000/api/admin/models/' + this.props.params.model, FormState);
+        jqXHR.done(function () {
+            AlertComponent = <FormAlert type='success' />;
+        });
+
+        jqXHR.fail(function () {
+            AlertComponent = <FormAlert type='danger' />;
+        });
+
+        jqXHR.always(function () {
+            ReactDOM.render(
+                AlertComponent,
+                document.getElementById('admin-form-alert')
+            );
+        });
     },
 
     render: function () {
         var fields = this.state.properties.map(function (property) {
-            if (property.type == 'String') return <FieldTypeString property={property} />
-            else if (property.type == 'Number') return <FieldTypeNumber property={property} />
-            else if (property.type == 'Boolean') return <FieldTypeBoolean property={property} />
-            else if (property.type == 'Date') return <FieldTypeDate property={property} />
-            else if (property.type == 'ObjectID') {
-                return !property.options.ref ? <FieldTypeString property={property} /> : <FieldTypeObjectId property={property} />
-            }
+            var FieldType = FormField(property.type);
+
+            return <FieldType property={property} />
         });
 
         return (
-            <form className='form-horizontal' onSubmit={this.handleSubmit}>
-                {fields}
-                <button type="submit" className="btn btn-primary pull-right">Save {this.props.params.model}</button>
-            </form>
-        )
-    }
-});
-
-var FieldTypeString = React.createClass({
-    render: function () {
-        return (
-            <div className="form-group">
-                <label className="col-sm-2 control-label" htmlFor={this.props.property.name}>{this.props.property.name}</label>
-                <div className="col-sm-10">
-                    <input type="text" className="form-control" id={this.props.property.name} placeholder={this.props.property.name} />
-                </div>
+            <div id='admin-form'>
+                <h1>New User</h1>
+                <div id='admin-form-alert'></div>
+                <form className='form-horizontal' onSubmit={this.handleSubmit}>
+                    {fields}
+                    <button type="submit" className="btn btn-primary pull-right">Save {this.props.params.model}</button>
+                </form>
             </div>
         )
     }
 });
 
-var FieldTypeNumber = React.createClass({
+var FormAlert = React.createClass({
     render: function () {
-        var options = this.props.property.options;
-
-        var rangeTags = {};
-        options.min !== undefined ? rangeTags.min = options.min : null;
-        options.max !== undefined ? rangeTags.max = options.max : null;
+        var type = this.props.type;
 
         return (
-            <div className="form-group">
-                <label className="col-sm-2 control-label" htmlFor={this.props.property.name}>{this.props.property.name}</label>
-                <div className="col-sm-10">
-                    <input type="number" {...rangeTags} className="form-control" id={this.props.property.name} placeholder={this.props.property.name} />
-                </div>
+            <div className={"alert alert-" + this.props.type + " alert-dismissible"} role="alert">
+                <button type="button" className="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <strong>Warning!</strong> Better check yourself, you are not looking too good.
             </div>
-        )
+        );
     }
 });
 
-var FieldTypeBoolean = React.createClass({
-    render: function () {
-        return (
-            <div className="form-group">
-                <div className="col-sm-offset-2 col-sm-10">
-                    <div className="checkbox">
-                        <label>
-                            <input type="checkbox" name={this.props.property.name} /> {this.props.property.name}
-                        </label>
-                    </div>
-                </div>
-            </div>
-        )
-    }
-});
-
-var FieldTypeDate = React.createClass({
-    render: function () {
-        return (
-            <div className="form-group">
-                <label className="col-sm-2 control-label" htmlFor={this.props.property.name}>{this.props.property.name}</label>
-                <div className="col-sm-10">
-                    <input type="date" className="form-control" id={this.props.property.name} placeholder={this.props.property.name} />
-                </div>
-            </div>
-        )
-    }
-});
-
-var FieldTypeObjectId = React.createClass({
-    getInitialState: function () {
-        return ({
-            data: []
-        });
-    },
-
-    loadOptions: function () {
-        this.propertiesRequest = $.get('http://localhost:8000/api/admin/models/' + this.props.property.options.ref + '/data', function (data) {
-            this.setState({ data: data.data });
-        }.bind(this));
-    },
-
-    componentDidMount: function () {
-        this.loadOptions();
-    },
-
-    render: function () {
-        var property = this.props.property;
-        var options = this.state.data.map(function (data) {
-            var format = data._id;
-            if (property.options.adminFormat) {
-                format = property.options.adminFormat.replace(/\$([a-z0-9\-_]+)/gi, function (match, v) { return !data[v] ? '' : String(data[v]); });
-            }
-
-            return (
-                <option value={data._id}>{format}</option>
-            );
-        });
-
-        return (
-            <div className="form-group">
-                <label className="col-sm-2 control-label" htmlFor={this.props.property.name}>{this.props.property.name}</label>
-                <div className="col-sm-10">
-                    <select className="form-control form-control-lg" id={this.props.property.name}>
-                        {options}
-                    </select>
-                </div>
-            </div>
-        )
-    }
-});
-
-module.exports = ModelForm;
+module.exports = ReactRedux.connect(function (state, action) {
+    FormState = Object.assign(FormState, state);
+    return action;
+})(ModelForm);

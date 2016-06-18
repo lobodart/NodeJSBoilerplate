@@ -63,7 +63,8 @@ app.get('/api/admin/models/:model', function(req, res, next) {
 	if (!model) {
 		return res.notFound('model_not_found');
 	}
-
+	//console.log(model.schema.paths);
+	//console.log(!model.schema.paths.options ? '' : model.schema.paths.options.type);
 	var array = [];
 	_.forEach(model.schema.paths, function(object, index) {
 		var newObject = {
@@ -94,8 +95,21 @@ app.get('/api/admin/models/:model/data', function(req, res, next) {
 	});
 });
 
+app.post('/api/admin/models/:model', function(req, res, next) {
+	var camelCasedModel = req.params.model.toLowerCase().replace(/(^[a-z]|\-[a-z])/g, function(g) { return g.toUpperCase(); });
+	var model = require('app/models')[camelCasedModel];
+	if (!model) {
+		return res.notFound('model_not_found');
+	}
+
+	return res.unauthorized("interdit");
+	model.create(req.body, function (err, object) {
+		if (err) return next(err);
+		res.ok({success: true});
+	});
+});
+
 app.get('/admin(?:/*)?', function(req, res, next) {
-	console.log(req.url);
 	res.sendFile(path.join(__dirname + '/app/views/admin/index.html'));
 });
 
