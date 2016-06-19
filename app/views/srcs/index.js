@@ -37,6 +37,7 @@ ReactDOM.render(
                 <IndexRoute component={components.AdminIndex} />
                 <Route path='model/:model' component={components.DataList} />
                 <Route path='model/:model/add' component={components.CreateUpdateModel} />
+                <Route path='model/:model/:id' component={components.CreateUpdateModel} />
             </Route>
         </Router>
     </Provider>,

@@ -22,7 +22,7 @@ module.exports = React.createClass({
             <div className="form-group">
                 <label className="col-sm-2 control-label" htmlFor={this.props.property.name}>{this.props.property.name}</label>
                 <div className="col-sm-10">
-                    <InputField type="text" name={this.props.property.name} />
+                    <InputField type="text" name={this.props.property.name} value={this.props.value} />
                 </div>
             </div>
         )

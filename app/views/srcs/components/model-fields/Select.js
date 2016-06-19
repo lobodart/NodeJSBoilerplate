@@ -1,9 +1,24 @@
 var React = require('react');
+var ReactRedux = require('react-redux');
 var $ = require('jquery');
+var action = require('../ModelFormActions');
 
 var StringField = require('.')('String');
 
-module.exports = React.createClass({
+var Select = React.createClass({
+    getInitialState: function () {
+        return ({
+            currentValue: (this.props.multiple ? [] : '')
+        });
+    },
+
+    handleChange: function (event) {
+        var value = $(event.target).val();
+        
+        this.setState({ currentValue: value });
+        this.props.dispatch(action.updateFormField(event.target.name, value));
+    },
+
     render: function () {
         var props = this.props;
         var options = props.data.map(function (data) {
@@ -19,8 +34,8 @@ module.exports = React.createClass({
             <div className="form-group">
                 <label className="col-sm-2 control-label" htmlFor={props.id}>{props.id}</label>
                 <div className="col-sm-10">
-                    <select {...multiple} className="form-control form-control-lg" id={props.id}>
-                        <option defaultValue disabled>{label}</option>
+                    <select {...multiple} value={this.state.currentValue} className="form-control form-control-lg" ref={props.id} id={props.id} name={props.id} onChange={this.handleChange}>
+                        <option value='' disabled>{label}</option>
                         {options}
                     </select>
                 </div>
@@ -28,3 +43,5 @@ module.exports = React.createClass({
         )
     }
 });
+
+module.exports = ReactRedux.connect()(Select);

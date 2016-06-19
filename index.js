@@ -102,7 +102,6 @@ app.post('/api/admin/models/:model', function(req, res, next) {
 		return res.notFound('model_not_found');
 	}
 
-	return res.unauthorized("interdit");
 	model.create(req.body, function (err, object) {
 		if (err) return next(err);
 		res.ok({success: true});

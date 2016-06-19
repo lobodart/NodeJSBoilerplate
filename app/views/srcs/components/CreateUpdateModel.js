@@ -52,7 +52,7 @@ var ModelForm = React.createClass({
         var fields = this.state.properties.map(function (property) {
             var FieldType = FormField(property.type);
 
-            return <FieldType property={property} />
+            return <FieldType property={property} value={FormState[property.name]} />
         });
 
         return (

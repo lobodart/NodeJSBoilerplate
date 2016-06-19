@@ -9,7 +9,7 @@ var Input = React.createClass({
 
     render: function () {
         return (
-            <input type={this.props.type} onChange={this.handleChange} className="form-control" id={this.props.name} name={this.props.name} placeholder={this.props.name} />
+            <input type={this.props.type} onChange={this.handleChange} className="form-control" id={this.props.name} name={this.props.name} value={this.props.value} />
         )
     }
 });

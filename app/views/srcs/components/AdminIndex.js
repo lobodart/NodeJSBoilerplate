@@ -31,7 +31,7 @@ var ModelList = React.createClass({
         });
 
         return (
-            <div class="list-group">
+            <div className="list-group">
                 {modelNodes}
             </div>
         )

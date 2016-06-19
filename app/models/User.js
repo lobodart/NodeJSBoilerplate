@@ -15,7 +15,7 @@ var UserSchema = new mongoose.Schema({
         default: null
     },
     authData: {
-        type: String,
+        type: mongoose.Schema.Types.Mixed,
         default: null
     },
     firstName: {
