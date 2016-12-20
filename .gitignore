@@ -34,3 +34,6 @@ node_modules
 
 # Redis
 dump.rds
+
+# Generated bundle
+app/views/public/bundle.js
