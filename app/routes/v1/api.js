@@ -5,30 +5,40 @@ var request = require('supertest');
 var requirements = require('express-requirements');
 
 var mongoose = require('mongoose');
-var User = require('app/models/User');
+var User = require('app/models').User;
 var config = require('app/config');
 
 var crypto = require('crypto');
 var bcrypt = require('bcrypt');
 var async = require('async');
+var simpleDuration = require('app/helpers').simpleDuration;
 
 router.post('/auth', requirements.validate('api.auth'), function(req, res, next) {
-    User.findOne({
-        username: req.body.username
-    }, function(err, user) {
-
-        if (err) next(err);
-
-        if (!user) return res.unauthorized('invalid_auth');
-
-        bcrypt.compare(req.body.password, user.password, function(err, passwordOk) {
-            if (!passwordOk) return res.unauthorized('invalid_auth');
-            
-            createTokenForUser(user, req.redis, function(err, token) {
-                return res.ok({
-                    token: token
-                });
+    async.waterfall([
+        function (callback) {
+            User.findOne({ username: req.body.username }, function(err, user) {
+                if (err) return callback(err);
+                if (!user) return res.unauthorized('invalid_auth');
+                callback(null, user);
+            }).select('-authData');
+        },
+        function (user, callback) {
+            bcrypt.compare(req.body.password, user.password, function(err, passwordOk) {
+                if (err) return callback(err);
+                if (!passwordOk) return res.unauthorized('invalid_auth');
+                callback(null, user);
             });
+        },
+        function (user, callback) {
+            createTokenForUser(user, req.redis, function(err, token) {
+                callback(err, user, token);
+            });
+        }
+    ], function(err, user, token) {
+        if (err) return next(err);
+
+        res.ok({
+            token: token
         });
     });
 });
@@ -101,16 +111,31 @@ router.post('/auth/facebook', requirements.validate('api.facebook_token'), funct
         });
 });
 
-function createTokenForUser(user, redis, callback) {
-    crypto.randomBytes(64, function(err, token) {
-        if (err || !token) return callback(err, null);
-
-        var accessToken = token.toString('hex');
-        redis.set("token:" + accessToken, user.id, function(err, reply) {
-            if (err) return callback(err, null);
-
-            return callback(null, accessToken);
-        });
+function createTokenForUser(user, redis, tokenCallback) {
+    async.waterfall([
+        function (callback) {
+            crypto.randomBytes(64, function(err, token) {
+                if (err || !token) return callback(err, null);
+                callback(null, token.toString('hex'));
+            });
+        },
+        function (token, callback) {
+            var redisKey = "token:" + token;
+            redis.set(redisKey, user.id, function(err, reply) {
+                if (err) return callback(err, null);
+                callback(null, token, redisKey);
+            });
+        },
+        function (token, redisKey, callback) {
+            if (!config.app.tokenExpirationDate) return callback(null, token);
+            redis.expireat(redisKey, parseInt((+new Date()) / 1000, 10) + config.app.tokenExpirationDate, function (err, reply) {
+                if (err) return callback(err, null);
+                callback(null, token);
+            });
+        }
+    ], function(err, token) {
+        if (err) return tokenCallback(err, null);
+        tokenCallback(null, token);
     });
 }
 

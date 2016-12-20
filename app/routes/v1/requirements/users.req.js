@@ -1,4 +1,6 @@
-module.exports = {
+var config = require('app/config');
+
+var requirements = {
 
     post_user: {
         _body: {
@@ -15,3 +17,11 @@ module.exports = {
     }
 
 };
+
+if (config.app.emailAsUsername) {
+    requirements.post_user._body.username.isEmail = {
+        errorMessage: 'invalid_username_syntax'
+    };
+}
+
+module.exports = requirements;

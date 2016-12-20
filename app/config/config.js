@@ -2,7 +2,15 @@ var appConfig = {
     // Name for the current instance (api, api-staging)
     name: 'api',
     // If true, when a User will be created: user.email = user.username
+    // The username must also have a correct email syntax
     emailAsUsername: false,
+    // If true, all your routes will be prefixed by /api (e.g. /api/<version>)
+    useApiPrefix: true,
+    // Expiration date of user auth token
+    // Use the following syntax: '1w' for 1 week, '1d' for 1 day, etc.
+    // For no expiration, simply put null
+    // You can combine (e.g. 1w2d). Available durations: w,d,h,m,s
+    tokenExpirationDate: '4w',
     // User picture maximum size (Mb)
     userPictureMaxSize: 5
 };

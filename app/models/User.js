@@ -30,7 +30,7 @@ var UserSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        unique: true,
+        unique: (config.app.emailAsUsername),
     },
     isAdmin: {
         type: Boolean,

@@ -1,7 +1,7 @@
-var express = require('express');
-var app = express();
+var async = require('async');
+var config = require('app/config');
 
-var User = require('app/models/User');
+var User = require('app/models').User;
 
 function auth(opts) {
     return function(req, res, next) {
@@ -11,7 +11,7 @@ function auth(opts) {
 
         var authHeader = req.headers['authorization'];
 
-        if (!authHeader) return res.unauthorized('auth_header_required');
+        if (!authHeader) return res.unauthorized('auth_required');
 
         var tokenRegex = /^token\s([a-z0-9]+)$/i;
         var match = tokenRegex.exec(authHeader);
@@ -19,19 +19,44 @@ function auth(opts) {
         if (!match) return res.unauthorized('invalid_auth_header');
 
         var token = match[1].toLowerCase();
-        req.redis.get("token:" + token, function(err, userId) {
-            if (!userId) return res.unauthorized('invalid_token');
+        var redisKey = "token:" + token;
 
-            User.findById(userId, function (err, user) {
-                if (!user) return res.unauthorized('invalid_token');
+        async.waterfall([
+            function (callback) {
+                req.redis.get(redisKey, function(err, userId) {
+                    if (!userId) return res.unauthorized('invalid_auth_token');
+                    callback(null, userId);
+                });
+            },
+            function (userId, callback) {
+                User.findById(userId, function (err, user) {
+                    if (err) return callback(err);
+                    if (!user) {
+                        return req.redis.del(redisKey, function (err, reply) {
+                            if (err) callback(err);
+                            return res.unauthorized('invalid_auth_token');
+                        });
+                    }
+
+                    callback(null, user);
+                }).select('-password');
+            },
+            function (user, callback) {
                 if (!user.isAdmin && isAdmin) return res.forbidden('access_denied');
-
+                if (!config.app.tokenExpirationDate) return callback(null, token);
+                req.redis.expireat(redisKey, parseInt((+new Date()) / 1000, 10) + config.app.tokenExpirationDate, function (err, reply) {
+                    callback(err, user);
+                })
+            },
+            function (user, callback) {
                 req.session = {
                     user: user
                 };
 
-                next();
-            }).select('-password');
+                callback(null, user);
+            }
+        ], function(err, obj) {
+            next(err);
         });
     };
 };

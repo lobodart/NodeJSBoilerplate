@@ -10,11 +10,8 @@ var models = require('app/models');
 var middlewares = require('app/middlewares');
 
 var s3 = config.AWS.s3;
-
 var auth = middlewares.auth;
-
 var User = models.User;
-var Teacher = models.Teacher;
 
 var _userEditableProperties = [
     'email',
@@ -45,8 +42,10 @@ router.post('/', multer().single('picture'), requirements.validate('users.post_u
         },
         // Create the new user
         function(callback) {
+            var username = req.body.username;
+
             var newUser = new User({
-                username: req.body.username
+                username: username
             });
 
             _.forEach(_userEditableProperties, function(value, idx) {
@@ -78,7 +77,6 @@ router.post('/', multer().single('picture'), requirements.validate('users.post_u
 
         user.password = undefined;
         user.authData = undefined;
-        user.isAdmin = undefined;
         return res.created(user);
     });
 });
