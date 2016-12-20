@@ -12,5 +12,5 @@ module.exports = {
             token: { required: true, notEmpty: true }
         }
     }
-    
+
 };

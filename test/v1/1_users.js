@@ -81,7 +81,7 @@ describe('Testing Users', function(){
 	});
 
 	describe('POST /auth', function(){
-		var uri = '/api/v1/auth';
+		var uri = '/api/auth';
 
 		it('Request without any parameters', function(done){
 			request(app)
