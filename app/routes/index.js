@@ -38,7 +38,12 @@ module.exports.loadRoutes = function(app) {
 				throw Error('Action is not defined or is not a function for route ' + apiPath);
 			}
 
-			route[method](requiredFile.middlewares || [], action);
+			var routeMiddlewares = requiredFile.middlewares || [];
+			if (requiredFile.requirements && _.isObject(requiredFile.requirements)) {
+				routeMiddlewares.push(middlewares.requirements(requiredFile.requirements));
+			}
+			
+			route[method](routeMiddlewares, action);
 		});
 	}
 
